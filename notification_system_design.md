@@ -196,3 +196,42 @@ DELETE FROM notifications WHERE id = :id AND user_id = :userId;
 ```sql
 SELECT COUNT(*) FROM notifications WHERE user_id = :userId AND is_read = FALSE;
 ```
+
+---
+
+# Stage 3
+
+## Query Analysis
+
+### 1. Is the query accurate?
+Yeah, the query works and is accurate. But `SELECT *` is bad practice because it fetches all columns (like payload etc) which we dont need. Also, `ORDER BY createdAt ASC` shows oldest alerts first. Usually we want descending order (`DESC`) so users see newest stuff first.
+
+### 2. Why is it slow?
+Because there is no index on the columns used in the WHERE and ORDER BY clauses. With 5 million rows, the DB does a full table scan (sequential scan) to filter by `studentID` and `isRead`, and then sorts them in memory.
+
+### 3. What to change & Cost
+We need a composite index on `(studentID, isRead, createdAt)` (or DESC if we flip the sort).
+*   **Cost**: Full table scan is $O(N)$ plus sorting $O(K \log K)$ where $K$ is the filtered rows. With the index, it becomes $O(\log N)$ for lookup, and sorting cost becomes $O(1)$ since index is already sorted.
+
+```sql
+CREATE INDEX idx_student_unread_created ON notifications (studentID, isRead, createdAt ASC);
+```
+
+### 4. Indexing every column?
+No, that advice is bad. 
+*   **Write Overhead**: Every INSERT, UPDATE, or DELETE gets super slow because the DB has to update all those indexes.
+*   **Space**: Indexes take up a lot of disk and RAM.
+*   **Useless**: DB query planner can only use one or two indexes per query anyway, so single-column indexes on everything won't help composite filters.
+
+---
+
+## Placement Query (Last 7 Days)
+
+To find all students who got a placement alert in the last 7 days:
+
+```sql
+SELECT DISTINCT studentID 
+FROM notifications 
+WHERE notificationType = 'Placement' 
+  AND createdAt >= NOW() - INTERVAL '7 days';
+```

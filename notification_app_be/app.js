@@ -7,6 +7,7 @@ var Log = require('./Logging_middleware/logger');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var notificationsRouter = require('./routes/notifications');
 
 var app = express();
 
@@ -24,6 +25,8 @@ app.use(cookieParser());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/api/notifications', notificationsRouter);
+
 
 
 const PORT = process.env.PORT || 3000;
