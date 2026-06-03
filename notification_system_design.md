@@ -327,4 +327,30 @@ function process_queue_job(job):
             mark_job_failed(job)
 ```
 
+---
+
+# Stage 6
+
+## Priority Inbox Design
+
+### 1. Ranking Approach
+To rank notifications, we use a combined score of weight and recency:
+*   **Weight**: We map types to scores: `Placement = 3`, `Result = 2`, `Event = 1`.
+*   **Recency**: We convert the timestamp into a Unix timestamp (seconds).
+*   **Combined Score**: Since recency is in seconds (which increases by 86,400 every day), we give the weight a massive boost multiplier (e.g. adding 10 days of seconds for each weight tier).
+    `Score = TimestampInSeconds + (Weight * 86400 * 10)`
+    This makes sure placements generally rank higher than results unless the placement is very old and the result is brand new.
+
+---
+
+### 2. Maintaining the Top 10 Efficiently
+If new notifications are coming in dynamically, sorting the whole array $O(N \log N)$ every time is too slow.
+*   **Solution**: Use a **Min-Heap** (Priority Queue) of size 10.
+*   **Algorithm**:
+    1. For the first 10 items, just insert them into the min-heap.
+    2. When any new notification arrives, compare its score with the root (minimum) of the heap.
+    3. If the new item has a higher score than the minimum, remove the root and insert the new item.
+*   **Complexity**: Maintaining this takes $O(\log K)$ where $K = 10$, which is practically $O(1)$ constant time.
+
+
 

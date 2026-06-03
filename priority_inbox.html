@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Priority Inbox Dashboard</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 30px;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #38bdf8;
+      border-bottom: 2px solid #1e293b;
+      padding-bottom: 10px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    .badge-placement { background-color: #ef4444; color: #fff; }
+    .badge-result { background-color: #f59e0b; color: #fff; }
+    .badge-event { background-color: #10b981; color: #fff; }
+    .card {
+      background-color: #1e293b;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      border-left: 5px solid #64748b;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    }
+    .card-Placement { border-left-color: #ef4444; }
+    .card-Result { border-left-color: #f59e0b; }
+    .card-Event { border-left-color: #10b981; }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .msg {
+      font-size: 15px;
+      color: #e2e8f0;
+      margin-bottom: 6px;
+    }
+    .time {
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .id {
+      font-size: 11px;
+      color: #64748b;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔔 Priority Inbox - Top 10 Notifications</h1>
+    
+      <div class="card card-Placement">
+        <div class="header-row">
+          <span class="badge badge-placement">Placement</span>
+          <span class="time">2026-06-03 05:23:09</span>
+        </div>
+        <div class="msg">Apple Inc. hiring</div>
+        <div class="id">ID: d3ddb190-ec93-4289-846c-a642e00101e3</div>
+      </div>
+    
+      <div class="card card-Placement">
+        <div class="header-row">
+          <span class="badge badge-placement">Placement</span>
+          <span class="time">2026-06-03 04:50:21</span>
+        </div>
+        <div class="msg">Tesla Inc. hiring</div>
+        <div class="id">ID: 6f06931d-7d39-439f-8fb4-54a567b1d77f</div>
+      </div>
+    
+      <div class="card card-Placement">
+        <div class="header-row">
+          <span class="badge badge-placement">Placement</span>
+          <span class="time">2026-06-03 01:54:19</span>
+        </div>
+        <div class="msg">Visa Inc. hiring</div>
+        <div class="id">ID: adadac3f-3503-4616-96e5-5c3b639be90f</div>
+      </div>
+    
+      <div class="card card-Placement">
+        <div class="header-row">
+          <span class="badge badge-placement">Placement</span>
+          <span class="time">2026-06-02 12:52:13</span>
+        </div>
+        <div class="msg">Marvell Technology Inc. hiring</div>
+        <div class="id">ID: 96e6cbcb-a97e-4a2a-857c-4507f7d028f0</div>
+      </div>
+    
+      <div class="card card-Placement">
+        <div class="header-row">
+          <span class="badge badge-placement">Placement</span>
+          <span class="time">2026-06-02 10:20:07</span>
+        </div>
+        <div class="msg">Advanced Micro Devices Inc. hiring</div>
+        <div class="id">ID: 021237e7-4a19-4ae5-9dce-c477e9a5e2e3</div>
+      </div>
+    
+      <div class="card card-Placement">
+        <div class="header-row">
+          <span class="badge badge-placement">Placement</span>
+          <span class="time">2026-06-02 09:21:31</span>
+        </div>
+        <div class="msg">Eli Lilly and Company hiring</div>
+        <div class="id">ID: 9323cc48-9be3-4a45-9ab6-2fc781eafe04</div>
+      </div>
+    
+      <div class="card card-Result">
+        <div class="header-row">
+          <span class="badge badge-result">Result</span>
+          <span class="time">2026-06-03 04:22:27</span>
+        </div>
+        <div class="msg">mid-sem</div>
+        <div class="id">ID: 5cbcc405-748b-4815-94b2-62c05cce2f62</div>
+      </div>
+    
+      <div class="card card-Result">
+        <div class="header-row">
+          <span class="badge badge-result">Result</span>
+          <span class="time">2026-06-03 04:20:35</span>
+        </div>
+        <div class="msg">end-sem</div>
+        <div class="id">ID: f2cb6afe-ccd4-4560-9605-2c39a3205477</div>
+      </div>
+    
+      <div class="card card-Result">
+        <div class="header-row">
+          <span class="badge badge-result">Result</span>
+          <span class="time">2026-06-03 00:23:23</span>
+        </div>
+        <div class="msg">external</div>
+        <div class="id">ID: ca35b74b-8608-479b-b44f-6c6b533c55aa</div>
+      </div>
+    
+      <div class="card card-Result">
+        <div class="header-row">
+          <span class="badge badge-result">Result</span>
+          <span class="time">2026-06-02 23:24:33</span>
+        </div>
+        <div class="msg">mid-sem</div>
+        <div class="id">ID: 115e9a80-6f97-437f-b818-87b9d1b9a81b</div>
+      </div>
+    
+  </div>
+</body>
+</html>
