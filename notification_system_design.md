@@ -264,3 +264,67 @@ Use HTTP `ETag` or `Cache-Control` headers for the `/unread-count` and list endp
 *   **Pros**: Standard web feature, browser handles it automatically.
 *   **Cons**: Still requires hitting the backend to check if the ETag is valid (unless we cache the ETag in Redis).
 
+
+---
+
+# Stage 5
+
+## Pseudocode Analysis & Redesign
+
+### Shortcomings of the current implementation:
+1.  **Synchronous & Blocking**: Running a loop of 50,000 students doing DB writes, email API calls, and socket pushes sequentially will block the server. If each takes 100ms, it will take over 80 minutes to finish, and the HR's HTTP request will timeout.
+2.  **No Fault Tolerance**: If the email API crashes or rate-limits us at student #25,000, the whole loop fails and remaining students get nothing.
+3.  **No Retry Mechanism**: For the 200 failed emails midway, we can't easily retry them without risking sending duplicate emails to the other 49,800 students.
+
+---
+
+### Should saving to DB and sending email happen together?
+**No**. They should be decoupled. 
+*   Saving to the DB is fast and crucial to record that the notification exists.
+*   Sending an email calls a third-party service (like SendGrid or AWS SES) which is slow and can fail easily. 
+*   If we decouple them, we can write to the DB instantly and let background workers send emails at their own pace. If an email fails, we retry just that email without affecting DB state.
+
+---
+
+### Redesigned Pseudocode
+
+We will use an **asynchronous job queue** (like BullMQ or RabbitMQ) to handle the load in the background.
+
+```python
+# Express Router / Producer
+function notify_all(student_ids: array, message: string):
+    # 1. Bulk insert notifications into DB in one query (very fast)
+    save_notifications_in_bulk(student_ids, message)
+    
+    # 2. Push notification jobs into a queue
+    for student_id in student_ids:
+        notification_queue.push({
+            student_id: student_id,
+            message: message,
+            attempts: 0
+        })
+        
+    # Return 202 accepted immediately so the HR doesn't wait
+    return response(status=202, message="Notifications are queueing")
+
+# Background Worker / Consumer
+function process_queue_job(job):
+    try:
+        # Push real-time alert (non-blocking)
+        push_to_app_socket(job.student_id, job.message)
+        
+        # Send the email
+        send_email(job.student_id, job.message)
+        
+        mark_job_completed(job)
+    except EmailError as e:
+        if job.attempts < 3:
+            job.attempts += 1
+            # Requeue with backoff delay so we don't spam a failing server
+            notification_queue.retry_with_delay(job, delay=300)
+        else:
+            log_failed_notification(job.student_id, e)
+            mark_job_failed(job)
+```
+
+
