@@ -235,3 +235,32 @@ FROM notifications
 WHERE notificationType = 'Placement' 
   AND createdAt >= NOW() - INTERVAL '7 days';
 ```
+
+---
+
+# Stage 4
+
+## Performance Solutions & Tradeoffs
+
+To stop the database from crashing because of constant notification fetches on page loads, here are the main solutions we can use:
+
+### 1. Redis Caching (In-memory Cache)
+We can store the notifications list and unread count in a Redis cache for each student. When they load a page, we read from Redis first. We only query the DB if it is a cache miss.
+*   **Pros**: Super fast response times (microsecond range) and takes all the read load off Postgres.
+*   **Cons**: Cache invalidation is tricky. Whenever a user marks a notification as read or gets a new one, we must clear or update their cache.
+
+### 2. WebSockets / Socket.IO (Push instead of Pull)
+Instead of fetching notifications on every page transition, the frontend can fetch them once at login and store them in app state (or localstorage). For new notifications, the backend pushes them in real-time over WebSockets.
+*   **Pros**: Basically eliminates DB fetch requests on page loads. Nice, real-time feel for the user.
+*   **Cons**: Maintaining millions of open WebSocket connections uses a lot of server memory and requires horizontal scaling (like Redis Pub/Sub for sockets).
+
+### 3. Read Replicas
+We can set up read-only database replicas. All notification GET requests go to the replicas, and only writes (inserts, marking as read) go to the primary master database.
+*   **Pros**: Very easy to scale horizontally by just adding more replica nodes. No change in app logic required.
+*   **Cons**: Replication lag. If the user marks an alert as read, they might still see it as unread for a split second on reload if the replica hasn't synced yet.
+
+### 4. HTTP Browser Caching (ETags)
+Use HTTP `ETag` or `Cache-Control` headers for the `/unread-count` and list endpoints. If nothing changed, the server returns a `304 Not Modified` without querying the full table.
+*   **Pros**: Standard web feature, browser handles it automatically.
+*   **Cons**: Still requires hitting the backend to check if the ETag is valid (unless we cache the ETag in Redis).
+
